@@ -8,20 +8,18 @@ variable "name" {
   type        = string
   description = "The name of the this resource."
 
-  validation {
-    condition     = can(regex("TODO", var.name))
-    error_message = "The name must be TODO." # TODO remove the example below once complete:
-    #condition     = can(regex("^[a-z0-9]{5,50}$", var.name))
-    #error_message = "The name must be between 5 and 50 characters long and can only contain lowercase letters and numbers."
-  }
 }
 
 # This is required for most resource modules
 variable "resource_group_name" {
   type        = string
-  description = "The resource group where the resources will be deployed."
+  description = "The resource name of the resource group where the resource should be deployed."
 }
 
+variable "subscription_id" {
+  type        = string
+  description = "The subscription ID where the resource should be deployed."
+}
 # required AVM interfaces
 # remove only if not supported by the resource
 # tflint-ignore: terraform_unused_declarations
@@ -42,7 +40,7 @@ A map describing customer-managed keys to associate with the resource. This incl
 - `key_version` - (Optional) The version of the key. If not specified, the latest version is used.
 - `user_assigned_identity` - (Optional) An object representing a user-assigned identity with the following properties:
   - `resource_id` - The resource ID of the user-assigned identity.
-DESCRIPTION  
+DESCRIPTION
 }
 
 variable "diagnostic_settings" {
@@ -72,7 +70,7 @@ A map of diagnostic settings to create on the Key Vault. The map key is delibera
 - `event_hub_authorization_rule_resource_id` - (Optional) The resource ID of the event hub authorization rule to send logs and metrics to.
 - `event_hub_name` - (Optional) The name of the event hub. If none is specified, the default event hub will be selected.
 - `marketplace_partner_resource_id` - (Optional) The full ARM resource ID of the Marketplace resource to which you would like to send Diagnostic LogsLogs.
-DESCRIPTION  
+DESCRIPTION
   nullable    = false
 
   validation {
@@ -154,6 +152,7 @@ variable "private_endpoints" {
     }), null)
     tags                                    = optional(map(string), null)
     subnet_resource_id                      = string
+    subresource_name                        = string
     private_dns_zone_group_name             = optional(string, "default")
     private_dns_zone_resource_ids           = optional(set(string), [])
     application_security_group_associations = optional(map(string), {})
@@ -231,4 +230,201 @@ variable "tags" {
   type        = map(string)
   default     = null
   description = "(Optional) Tags of the resource."
+}
+
+
+variable "managed_resource_group_name" {
+  type        = string
+  default     = null
+  description = <<DESCRIPTION
+(Optional) The name of the managed resource group, which gets created in the same location as the workspace. This is used to manage the resources created by the workspace."
+DESCRIPTION
+
+}
+
+variable "use_managed_virtual_network" {
+  type        = bool
+  default     = false
+  description = <<DESCRIPTION
+(Optional) Whether to use a managed virtual network. If set to true, the workspace will be created in a managed virtual network. If set to false, the workspace will be created in a standard virtual network.
+DESCRIPTION
+}
+
+variable "managed_virtual_network_settings" {
+  type = object({
+    allowed_aad_tenant_ids_for_linking     = optional(list(string), [])
+    linked_access_check_on_target_resource = optional(bool, false)
+    prevent_data_exfiltration              = optional(bool, false)
+  })
+  default     = null
+  description = <<DESCRIPTION
+(Optional) The settings for the managed virtual network. This includes the following properties:
+- `allowed_aad_tenant_ids_for_linking` - (Optional) A set of Azure AD tenant IDs that are allowed to link to the managed virtual network.
+- `linked_access_check_on_target_resource` - (Optional) Whether to perform a linked access check on the target resource. Defaults to false.
+- `prevent_data_exfiltration` - (Optional) Whether to prevent data exfiltration from the managed virtual network. Defaults to false.
+DESCRIPTION
+  #   validation {
+  #     condition     = var.managed_virtual_network_settings != null && var.use_managed_virtual_network == null
+  #     error_message = "The `managed_virtual_network_settings` variable can only be set when `use_managed_virtual_network` is set to true."
+  #   }
+}
+
+variable "generate_sql_admin_password" {
+  type        = bool
+  default     = false
+  description = <<DESCRIPTION
+(Optional) Whether to generate a random SQL admin password. If set to true, a random password will be generated. If set to false, the password will be set to the value of `sql_admin_password`.
+DESCRIPTION
+  # validation {
+  #   condition     = var.sql_admin_password == null && var.generate_sql_admin_password != null
+  #   error_message = "Only one of `sql_admin_password` or `generate_sql_admin_password` can be set."
+  # }
+}
+
+variable "sql_admin_password" {
+  type        = string
+  default     = null
+  description = <<DESCRIPTION
+(Optional) The SQL admin password. This is only used if `generate_sql_admin_password` is set to false. If set to true, a random password will be generated.
+DESCRIPTION
+  sensitive   = true
+  # validation {
+  #   condition     = var.sql_admin_password != null && var.generate_sql_admin_password != null
+  #   error_message = "Only one of `sql_admin_password` or `generate_sql_admin_password` can be set."
+  # }
+}
+
+variable "sql_admin_login" {
+  type        = string
+  default     = null
+  description = <<DESCRIPTION
+(Optional) The SQL admin login. This is only used if `azure_ad_only_authentication` is set to false.
+DESCRIPTION
+
+}
+
+variable "is_private" {
+  type        = bool
+  default     = false
+  description = "Specifies if every provisioned resource should be private and inaccessible from the Internet."
+}
+
+variable "purview_resource_id" {
+  type        = string
+  default     = null
+  description = <<DESCRIPTION
+(Optional) The resource ID of the Purview account to associate with the workspace. This is used for Purview integration.
+DESCRIPTION
+}
+
+variable "trusted_service_bypass_enabled" {
+  type        = bool
+  default     = false
+  description = <<DESCRIPTION
+(Optional) Whether to enable trusted service bypass for the workspace. If set to true, trusted services will be able to bypass the firewall and access the workspace. If set to false, trusted services will not be able to bypass the firewall.
+DESCRIPTION
+
+}
+
+variable "initial_workspace_admin_object_id" {
+  type        = string
+  description = <<DESCRIPTION
+(Optional) The object ID of the initial workspace admin. This is used to set the initial workspace admin for the workspace.
+DESCRIPTION
+
+  nullable = false
+  validation {
+    condition     = can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", var.initial_workspace_admin_object_id))
+    error_message = "The initial workspace admin object ID must be a valid GUID."
+  }
+  validation {
+    condition     = var.initial_workspace_admin_object_id != null
+    error_message = "The initial workspace admin object ID must be set."
+  }
+}
+
+variable "azure_ad_only_authentication" {
+  type        = bool
+  default     = true
+  description = <<DESCRIPTION
+(Optional) Whether to enable Azure AD only authentication for the workspace. If set to true, only Azure AD authentication will be allowed. If set to false, both Azure AD and SQL authentication will be allowed.
+DESCRIPTION
+
+}
+
+variable "default_data_lake_storage" {
+  type = object({
+    account_url                     = optional(string)
+    create_managed_private_endpoint = optional(bool, true)
+    filesystem                      = optional(string)
+    resource_id                     = string
+  })
+  default     = null
+  description = <<DESCRIPTION
+(Optional) The default data lake storage account to associate with the workspace. This is used for data lake integration. The following properties can be specified:
+- `account_url` - The URL of the data lake storage account.
+- `create_managed_private_endpoint` - (Optional) Whether to create a managed private endpoint for the data lake storage account. Defaults to false.
+- `filesystem` - (Optional) The name of the filesystem in the data lake storage account. Defaults to "/".
+- `resource_id` - The resource ID of the data lake storage account.
+
+DESCRIPTION
+
+}
+
+variable "workspace_repository_configuration" {
+  type = object({
+    account_name         = string
+    collaboration_branch = string
+    project_name         = string
+    repository_name      = string
+    root_folder          = string
+    tenant_id            = string
+    type                 = string
+  })
+  default     = null
+  description = <<DESCRIPTION
+(Optional) The workspace repository configuration. This is used for Git integration. The following properties can be specified:
+- `account_name` - The name of the Azure DevOps account.
+- `collaboration_branch` - The name of the collaboration branch.
+- `host_name` - The host name of the Azure DevOps account.
+- `project_name` - The name of the Azure DevOps project.
+- `repository_name` - The name of the Azure DevOps repository.
+- `root_folder` - The root folder in the Azure DevOps repository.
+- `tenant_id` - The Azure AD tenant ID.
+- `type` - The type of the repository. Possible values are `Git` and `TFVC`.
+DESCRIPTION
+}
+
+
+variable "firewall_rules" {
+  type = map(object({
+    name             = optional(string, null)
+    start_ip_address = string
+    end_ip_address   = string
+  }))
+  default     = {}
+  description = <<DESCRIPTION
+(Optional) A map of firewall rules to create on the workspace. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
+- `name` - (Optional) The name of the firewall rule. One will be generated if not set.
+- `start_ip_address` - The start IP address of the firewall rule.
+- `end_ip_address` - The end IP address of the firewall rule.
+DESCRIPTION
+}
+
+variable "trusted_service_bypass_configuration_enabled" {
+  type        = bool
+  default     = false
+  description = <<DESCRIPTION
+(Optional) Whether to enable trusted service bypass configuration for the workspace. If set to true, trusted services will be able to bypass the firewall and access the workspace. If set to false, trusted services will not be able to bypass the firewall.
+DESCRIPTION
+
+}
+
+variable "dedicated_sql_minimal_tls_version" {
+  type        = string
+  default     = "1.2"
+  description = <<DESCRIPTION
+(Optional) The minimum TLS version for the dedicated SQL pool. This is used to enforce TLS encryption for the dedicated SQL pool. Possible values are `1.0`, `1.1`, and `1.2`. Defaults to `1.2`.
+DESCRIPTION
+
 }

@@ -1,23 +1,12 @@
 # TODO: insert locals here.
 locals {
+  synapse_workspace_id = azapi_resource.this.id
+  sql_admin_password   = var.generate_sql_admin_password == true ? random_password.sql_admin_password[0].result : var.sql_admin_password
   managed_identities = {
-    system_assigned_user_assigned = (var.managed_identities.system_assigned || length(var.managed_identities.user_assigned_resource_ids) > 0) ? {
-      this = {
-        type                       = var.managed_identities.system_assigned && length(var.managed_identities.user_assigned_resource_ids) > 0 ? "SystemAssigned, UserAssigned" : length(var.managed_identities.user_assigned_resource_ids) > 0 ? "UserAssigned" : "SystemAssigned"
-        user_assigned_resource_ids = var.managed_identities.user_assigned_resource_ids
-      }
-    } : {}
-    system_assigned = var.managed_identities.system_assigned ? {
-      this = {
-        type = "SystemAssigned"
-      }
-    } : {}
-    user_assigned = length(var.managed_identities.user_assigned_resource_ids) > 0 ? {
-      this = {
-        type                       = "UserAssigned"
-        user_assigned_resource_ids = var.managed_identities.user_assigned_resource_ids
-      }
-    } : {}
+    this = {
+      type                       = var.managed_identities.system_assigned && length(var.managed_identities.user_assigned_resource_ids) > 0 ? "SystemAssigned, UserAssigned" : length(var.managed_identities.user_assigned_resource_ids) > 0 ? "UserAssigned" : "SystemAssigned"
+      user_assigned_resource_ids = var.managed_identities.user_assigned_resource_ids
+    }
   }
   # Private endpoint application security group associations.
   # We merge the nested maps from private endpoints and application security group associations into a single map.
@@ -30,5 +19,9 @@ locals {
       }
     ]
   ]) : "${assoc.pe_key}-${assoc.asg_key}" => assoc }
-  role_definition_resource_substring = "/providers/Microsoft.Authorization/roleDefinitions"
+  subscription_scope   = format("/subscriptions/%s", var.subscription_id)
+  resource_group_scope = "resourceGroups"
+  resource_group_name  = var.resource_group_name
+  resource_group_id    = format("%s/%s/%s", local.subscription_scope, local.resource_group_scope, local.resource_group_name)
+
 }
