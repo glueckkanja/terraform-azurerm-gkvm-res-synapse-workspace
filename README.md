@@ -1,5 +1,5 @@
 <!-- BEGIN_TF_DOCS -->
-# terraform-azurerm-avm-template
+# terraform-azurerm-gkvm-res-synapse-workspace
 
 This is a template repo for Terraform Azure Verified Modules.
 
