@@ -68,14 +68,6 @@ A map describing customer-managed keys to associate with the resource. This incl
 DESCRIPTION
 }
 
-variable "dedicated_sql_minimal_tls_version" {
-  type        = string
-  default     = "1.2"
-  description = <<DESCRIPTION
-(Optional) The minimum TLS version for the dedicated SQL pool. This is used to enforce TLS encryption for the dedicated SQL pool. Possible values are `1.0`, `1.1`, and `1.2`. Defaults to `1.2`.
-DESCRIPTION
-}
-
 variable "default_data_lake_storage" {
   type = object({
     account_url                     = optional(string)

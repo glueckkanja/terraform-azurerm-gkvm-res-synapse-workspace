@@ -57,7 +57,7 @@ resource "azapi_resource" "this" {
   ignore_missing_property = true
   location                = var.location
   name                    = var.name
-  parent_id               = local.resource_group_id #data.azurerm_resource_group.this.id
+  parent_id               = local.resource_group_id
   response_export_values = [
     "body.properties.workspaceRepositoryConfiguration.lastCommitId",
     "body.properties.privateEndpointConnections"
@@ -68,9 +68,6 @@ resource "azapi_resource" "this" {
     multiplier           = 2   # if try fails, multiplies time between next try by this much
     error_message_regex  = ["ResourceNotFound"]
   }
-  # replace_triggers_external_values = [
-  #   data.azurerm_resource_group.this.id # since this is the value that determines if parent_id changes, require create/destroy if it changes
-  # ]
   tags = var.tags
 
   dynamic "identity" {

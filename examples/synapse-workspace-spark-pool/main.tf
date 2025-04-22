@@ -1,17 +1,9 @@
 terraform {
   required_version = ">= 1.9, < 2.0"
   required_providers {
-    azapi = {
-      source  = "Azure/azapi"
-      version = "~> 2.0"
-    }
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
-    }
-    modtm = {
-      source  = "Azure/modtm"
-      version = "0.3.2"
     }
     random = {
       source  = "hashicorp/random"
@@ -56,7 +48,7 @@ resource "azurerm_resource_group" "this" {
 }
 
 ## Section
-module "avm-res-storage-storageaccount" {
+module "avm_res_storage_storageaccount" {
   source              = "Azure/avm-res-storage-storageaccount/azurerm"
   version             = "0.5.0"
   name                = module.naming.storage_account.name_unique
@@ -106,8 +98,8 @@ module "this" {
   managed_resource_group_name       = "${azurerm_resource_group.this.name}-managed"
   use_managed_virtual_network       = true
   default_data_lake_storage = {
-    resource_id                     = module.avm-res-storage-storageaccount.resource_id
-    account_url                     = module.avm-res-storage-storageaccount.resource.primary_dfs_endpoint
+    resource_id                     = module.avm_res_storage_storageaccount.resource_id
+    account_url                     = module.avm_res_storage_storageaccount.resource.primary_dfs_endpoint
     filesystem                      = module.naming.storage_data_lake_gen2_filesystem.name_unique
     create_managed_private_endpoint = true
   }

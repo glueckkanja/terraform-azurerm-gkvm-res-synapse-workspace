@@ -7,17 +7,9 @@ This deploys the module in its simplest form.
 terraform {
   required_version = ">= 1.9, < 2.0"
   required_providers {
-    azapi = {
-      source  = "Azure/azapi"
-      version = "~> 2.0"
-    }
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
-    }
-    modtm = {
-      source  = "Azure/modtm"
-      version = "0.3.2"
     }
     random = {
       source  = "hashicorp/random"
@@ -61,7 +53,7 @@ resource "azurerm_resource_group" "this" {
 }
 
 ## Section
-module "avm-res-storage-storageaccount" {
+module "avm_res_storage_storageaccount" {
   source              = "Azure/avm-res-storage-storageaccount/azurerm"
   version             = "0.5.0"
   name                = module.naming.storage_account.name_unique
@@ -127,8 +119,8 @@ module "this" {
   managed_resource_group_name       = "${azurerm_resource_group.this.name}-managed"
   use_managed_virtual_network       = true
   default_data_lake_storage = {
-    resource_id                     = module.avm-res-storage-storageaccount.resource_id
-    account_url                     = module.avm-res-storage-storageaccount.resource.primary_dfs_endpoint
+    resource_id                     = module.avm_res_storage_storageaccount.resource_id
+    account_url                     = module.avm_res_storage_storageaccount.resource.primary_dfs_endpoint
     filesystem                      = module.naming.storage_data_lake_gen2_filesystem.name_unique
     create_managed_private_endpoint = true
   }
@@ -162,11 +154,7 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9, < 2.0)
 
-- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.0)
-
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.0)
-
-- <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (0.3.2)
 
 - <a name="requirement_random"></a> [random](#requirement\_random) (3.6.2)
 
@@ -211,7 +199,7 @@ Source: Azure/avm-res-network-virtualnetwork/azurerm
 
 Version: 0.8.1
 
-### <a name="module_avm-res-storage-storageaccount"></a> [avm-res-storage-storageaccount](#module\_avm-res-storage-storageaccount)
+### <a name="module_avm_res_storage_storageaccount"></a> [avm\_res\_storage\_storageaccount](#module\_avm\_res\_storage\_storageaccount)
 
 Source: Azure/avm-res-storage-storageaccount/azurerm
 
