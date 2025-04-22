@@ -10,31 +10,45 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9, < 2.0)
 
+- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.0)
+
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.0)
 
-- <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (~> 0.3)
+- <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (~>0.3)
 
-- <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
+- <a name="requirement_random"></a> [random](#requirement\_random) (3.6.2)
 
 ## Resources
 
 The following resources are used by this module:
 
+- [azapi_resource.big_data_pools](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
+- [azapi_resource.synapse_workspace_firewall_rules](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
+- [azapi_resource.synapse_workspace_firewall_rules_trusted_azure_services](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
+- [azapi_resource.this](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
 - [azurerm_management_lock.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_lock) (resource)
-- [azurerm_private_endpoint.this_managed_dns_zone_groups](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) (resource)
+- [azurerm_monitor_diagnostic_setting.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting) (resource)
+- [azurerm_private_endpoint.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) (resource)
 - [azurerm_private_endpoint.this_unmanaged_dns_zone_groups](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) (resource)
 - [azurerm_private_endpoint_application_security_group_association.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint_application_security_group_association) (resource)
-- [azurerm_resource_group.TODO](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) (resource)
 - [azurerm_role_assignment.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) (resource)
-- [modtm_telemetry.telemetry](https://registry.terraform.io/providers/azure/modtm/latest/docs/resources/telemetry) (resource)
-- [random_uuid.telemetry](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/uuid) (resource)
+- [modtm_telemetry.telemetry](https://registry.terraform.io/providers/Azure/modtm/latest/docs/resources/telemetry) (resource)
+- [random_password.sql_admin_password](https://registry.terraform.io/providers/hashicorp/random/3.6.2/docs/resources/password) (resource)
+- [random_uuid.telemetry](https://registry.terraform.io/providers/hashicorp/random/3.6.2/docs/resources/uuid) (resource)
 - [azurerm_client_config.telemetry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) (data source)
-- [modtm_module_source.telemetry](https://registry.terraform.io/providers/azure/modtm/latest/docs/data-sources/module_source) (data source)
+- [azurerm_key_vault_key.cmk](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_key) (data source)
+- [modtm_module_source.telemetry](https://registry.terraform.io/providers/Azure/modtm/latest/docs/data-sources/module_source) (data source)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
 
 The following input variables are required:
+
+### <a name="input_initial_workspace_admin_object_id"></a> [initial\_workspace\_admin\_object\_id](#input\_initial\_workspace\_admin\_object\_id)
+
+Description: (Optional) The object ID of the initial workspace admin. This is used to set the initial workspace admin for the workspace.
+
+Type: `string`
 
 ### <a name="input_location"></a> [location](#input\_location)
 
@@ -50,13 +64,114 @@ Type: `string`
 
 ### <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name)
 
-Description: The resource group where the resources will be deployed.
+Description: The resource name of the resource group where the resource should be deployed.
+
+Type: `string`
+
+### <a name="input_subscription_id"></a> [subscription\_id](#input\_subscription\_id)
+
+Description: The subscription ID where the resource should be deployed.
 
 Type: `string`
 
 ## Optional Inputs
 
 The following input variables are optional (have default values):
+
+### <a name="input_azure_ad_only_authentication"></a> [azure\_ad\_only\_authentication](#input\_azure\_ad\_only\_authentication)
+
+Description: (Optional) Whether to enable Azure AD only authentication for the workspace. If set to true, only Azure AD authentication will be allowed. If set to false, both Azure AD and SQL authentication will be allowed.
+
+Type: `bool`
+
+Default: `true`
+
+### <a name="input_big_data_pools"></a> [big\_data\_pools](#input\_big\_data\_pools)
+
+Description: A map of Spark pools to create on the Synapse workspace.
+- `name` - The name of the Spark pool.
+- `node_size` - The size of the nodes in the Spark pool.
+- `node_size_family` - The family of the nodes in the Spark pool.
+- `spark_version` - The version of Spark to use in the Spark pool.
+- `location` - (Optional) The location of the Spark pool. Defaults to the location of the Synapse workspace.
+- `auto_pause` - (Optional) A map of auto pause settings for the Spark pool. The following properties can be specified:
+  - `delay_in_minutes` - The delay in minutes before the Spark pool is paused.
+  - `enabled` - Whether to enable auto pause. Defaults to true.
+- `auto_scale` - (Optional) A map of auto scale settings for the Spark pool. The following properties can be specified:
+  - `enabled` - Whether to enable auto scale. Defaults to true.
+  - `max_node_count` - The maximum number of nodes in the Spark pool. Defaults to 1.
+  - `min_node_count` - The minimum number of nodes in the Spark pool. Defaults to 3.
+- `cache_size` - (Optional) The size of the cache for the Spark pool.
+- `custom_libraries` - (Optional) A list of custom libraries to install in the Spark pool. Each library is specified as an object with the following properties:
+  - `name` - The name of the library.
+  - `version` - The version of the library.
+  - `uri` - The URI of the library.
+- `default_spark_log_folder` - (Optional) The default folder for Spark logs.
+- `spark_events_folder` - (Optional) The folder for Spark events.
+- `dynamic_executor_allocation` - (Optional) A map of dynamic executor allocation settings for the Spark pool. The following properties can be specified:
+  - `enabled` - Whether to enable dynamic executor allocation. Defaults to true.
+  - `max_executors` - The maximum number of executors in the Spark pool.
+  - `min_executors` - The minimum number of executors in the Spark pool.
+- `is_autotune_enabled` - (Optional) Whether to enable autotune for the Spark pool. Defaults to false.
+- `is_compute_isolation_enabled` - (Optional) Whether to enable compute isolation for the Spark pool. Defaults to false.
+- `library_requirements` - (Optional) A map of library requirements for the Spark pool. The following properties can be specified:
+  - `content` - The content of the library requirements.
+  - `filename` - The filename of the library requirements.
+- `node_count` - (Optional) The number of nodes in the Spark pool. Either autos\_scale or node\_count needs to be configured .Defaults to 0.
+- `session_level_packages_enabled` - (Optional) Whether to enable session level packages for the Spark pool. Defaults to false.
+- `spark_config_properties` - (Optional) A map of Spark configuration properties for the Spark pool. The following properties can be specified:
+  - `content` - The content of the Spark configuration properties.
+  - `filename` - The filename of the Spark configuration properties.
+- `tags` - (Optional) A map of tags to assign to the Spark pool.
+
+Type:
+
+```hcl
+map(object({
+    name             = string
+    node_size        = string
+    node_size_family = string
+    spark_version    = string
+    location         = optional(string, null)
+    auto_pause = optional(object({
+      delay_in_minutes = optional(number)
+      enabled          = optional(bool, true)
+    }))
+    auto_scale = optional(object({
+      enabled        = bool
+      max_node_count = optional(number, 1)
+      min_node_count = optional(number, 3)
+    }))
+    cache_size = optional(string, null)
+    custom_libraries = optional(list(object({
+      name    = string
+      version = string
+      uri     = string
+    })), [])
+    default_spark_log_folder = optional(string, null)
+    spark_events_folder      = optional(string, null)
+    dynamic_executor_allocation = optional(object({
+      enabled       = bool
+      max_executors = optional(number)
+      min_executors = optional(number)
+    }))
+    is_autotune_enabled          = optional(bool, false)
+    is_compute_isolation_enabled = optional(bool, false)
+    library_requirements = optional(object({
+      content  = string
+      filename = string
+    }))
+    node_count                     = optional(number, 0)
+    session_level_packages_enabled = optional(bool, false)
+    spark_config_properties = optional(object({
+      content  = string
+      filename = string
+    }))
+    tags = optional(map(string), null)
+  }))
+```
+
+Default: `{}`
 
 ### <a name="input_customer_managed_key"></a> [customer\_managed\_key](#input\_customer\_managed\_key)
 
@@ -77,6 +192,27 @@ object({
     user_assigned_identity = optional(object({
       resource_id = string
     }), null)
+  })
+```
+
+Default: `null`
+
+### <a name="input_default_data_lake_storage"></a> [default\_data\_lake\_storage](#input\_default\_data\_lake\_storage)
+
+Description: (Optional) The default data lake storage account to associate with the workspace. This is used for data lake integration. The following properties can be specified:
+- `account_url` - The URL of the data lake storage account.
+- `create_managed_private_endpoint` - (Optional) Whether to create a managed private endpoint for the data lake storage account. Defaults to false.
+- `filesystem` - (Optional) The name of the filesystem in the data lake storage account. Defaults to "/".
+- `resource_id` - The resource ID of the data lake storage account.
+
+Type:
+
+```hcl
+object({
+    account_url                     = optional(string)
+    create_managed_private_endpoint = optional(bool, true)
+    filesystem                      = optional(string)
+    resource_id                     = string
   })
 ```
 
@@ -126,6 +262,41 @@ Type: `bool`
 
 Default: `true`
 
+### <a name="input_firewall_rules"></a> [firewall\_rules](#input\_firewall\_rules)
+
+Description: (Optional) A map of firewall rules to create on the workspace. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
+- `name` - (Optional) The name of the firewall rule. One will be generated if not set.
+- `start_ip_address` - The start IP address of the firewall rule.
+- `end_ip_address` - The end IP address of the firewall rule.
+
+Type:
+
+```hcl
+map(object({
+    name             = optional(string, null)
+    start_ip_address = string
+    end_ip_address   = string
+  }))
+```
+
+Default: `{}`
+
+### <a name="input_generate_sql_admin_password"></a> [generate\_sql\_admin\_password](#input\_generate\_sql\_admin\_password)
+
+Description: (Optional) Whether to generate a random SQL admin password. If set to true, a random password will be generated. If set to false, the password will be set to the value of `sql_admin_password`.
+
+Type: `bool`
+
+Default: `false`
+
+### <a name="input_is_private"></a> [is\_private](#input\_is\_private)
+
+Description: Specifies if every provisioned resource should be private and inaccessible from the Internet.
+
+Type: `bool`
+
+Default: `false`
+
 ### <a name="input_lock"></a> [lock](#input\_lock)
 
 Description: Controls the Resource Lock configuration for this resource. The following properties can be specified:
@@ -162,6 +333,33 @@ object({
 
 Default: `{}`
 
+### <a name="input_managed_resource_group_name"></a> [managed\_resource\_group\_name](#input\_managed\_resource\_group\_name)
+
+Description: (Optional) The name of the managed resource group, which gets created in the same location as the workspace. This is used to manage the resources created by the workspace."
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_managed_virtual_network_settings"></a> [managed\_virtual\_network\_settings](#input\_managed\_virtual\_network\_settings)
+
+Description: (Optional) The settings for the managed virtual network. This includes the following properties:
+- `allowed_aad_tenant_ids_for_linking` - (Optional) A set of Azure AD tenant IDs that are allowed to link to the managed virtual network.
+- `linked_access_check_on_target_resource` - (Optional) Whether to perform a linked access check on the target resource. Defaults to false.
+- `prevent_data_exfiltration` - (Optional) Whether to prevent data exfiltration from the managed virtual network. Defaults to false.
+
+Type:
+
+```hcl
+object({
+    allowed_aad_tenant_ids_for_linking     = optional(list(string), [])
+    linked_access_check_on_target_resource = optional(bool, false)
+    prevent_data_exfiltration              = optional(bool, false)
+  })
+```
+
+Default: `null`
+
 ### <a name="input_private_endpoints"></a> [private\_endpoints](#input\_private\_endpoints)
 
 Description: A map of private endpoints to create on this resource. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
@@ -195,6 +393,7 @@ map(object({
       condition                              = optional(string, null)
       condition_version                      = optional(string, null)
       delegated_managed_identity_resource_id = optional(string, null)
+      principal_type                         = optional(string, null)
     })), {})
     lock = optional(object({
       kind = string
@@ -202,6 +401,7 @@ map(object({
     }), null)
     tags                                    = optional(map(string), null)
     subnet_resource_id                      = string
+    subresource_name                        = string # NOTE: `subresource_name` can be excluded if the resource does not support multiple sub resource types (e.g. storage account supports blob, queue, etc)
     private_dns_zone_group_name             = optional(string, "default")
     private_dns_zone_resource_ids           = optional(set(string), [])
     application_security_group_associations = optional(map(string), {})
@@ -225,6 +425,14 @@ Description: Whether to manage private DNS zone groups with this module. If set 
 Type: `bool`
 
 Default: `true`
+
+### <a name="input_purview_resource_id"></a> [purview\_resource\_id](#input\_purview\_resource\_id)
+
+Description: (Optional) The resource ID of the Purview account to associate with the workspace. This is used for Purview integration.
+
+Type: `string`
+
+Default: `null`
 
 ### <a name="input_role_assignments"></a> [role\_assignments](#input\_role\_assignments)
 
@@ -250,10 +458,27 @@ map(object({
     condition                              = optional(string, null)
     condition_version                      = optional(string, null)
     delegated_managed_identity_resource_id = optional(string, null)
+    principal_type                         = optional(string, null)
   }))
 ```
 
 Default: `{}`
+
+### <a name="input_sql_admin_login"></a> [sql\_admin\_login](#input\_sql\_admin\_login)
+
+Description: (Optional) The SQL admin login. This is only used if `azure_ad_only_authentication` is set to false.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_sql_admin_password"></a> [sql\_admin\_password](#input\_sql\_admin\_password)
+
+Description: (Optional) The SQL admin password. This is only used if `generate_sql_admin_password` is set to false. If set to true, a random password will be generated.
+
+Type: `string`
+
+Default: `null`
 
 ### <a name="input_tags"></a> [tags](#input\_tags)
 
@@ -263,13 +488,73 @@ Type: `map(string)`
 
 Default: `null`
 
+### <a name="input_trusted_service_bypass_enabled"></a> [trusted\_service\_bypass\_enabled](#input\_trusted\_service\_bypass\_enabled)
+
+Description: (Optional) Whether to enable trusted service bypass for the workspace. If set to true, trusted services will be able to bypass the firewall and access the workspace. If set to false, trusted services will not be able to bypass the firewall.
+
+Type: `bool`
+
+Default: `false`
+
+### <a name="input_use_managed_virtual_network"></a> [use\_managed\_virtual\_network](#input\_use\_managed\_virtual\_network)
+
+Description: (Optional) Whether to use a managed virtual network. If set to true, the workspace will be created in a managed virtual network. If set to false, the workspace will be created in a standard virtual network.
+
+Type: `bool`
+
+Default: `false`
+
+### <a name="input_workspace_repository_configuration"></a> [workspace\_repository\_configuration](#input\_workspace\_repository\_configuration)
+
+Description: (Optional) The workspace repository configuration. This is used for Git integration. The following properties can be specified:
+- `account_name` - The name of the Azure DevOps account.
+- `collaboration_branch` - The name of the collaboration branch.
+- `host_name` - The host name of the Azure DevOps account.
+- `project_name` - The name of the Azure DevOps project.
+- `repository_name` - The name of the Azure DevOps repository.
+- `root_folder` - The root folder in the Azure DevOps repository.
+- `tenant_id` - The Azure AD tenant ID.
+- `type` - The type of the repository. Possible values are `Git` and `TFVC`.
+
+Type:
+
+```hcl
+object({
+    account_name         = string
+    collaboration_branch = string
+    project_name         = string
+    repository_name      = string
+    root_folder          = string
+    tenant_id            = string
+    type                 = string
+  })
+```
+
+Default: `null`
+
 ## Outputs
 
 The following outputs are exported:
 
+### <a name="output_admin_password"></a> [admin\_password](#output\_admin\_password)
+
+Description: Returns the sqladmin password if installation is configured to use the password.  Otherwise returns null
+
+### <a name="output_name"></a> [name](#output\_name)
+
+Description: The name of the Synapse Workspace.
+
 ### <a name="output_private_endpoints"></a> [private\_endpoints](#output\_private\_endpoints)
 
-Description:   A map of the private endpoints created.
+Description: A map of private endpoints. The map key is the supplied input to var.private\_endpoints. The map value is the entire azurerm\_private\_endpoint resource.
+
+### <a name="output_resource"></a> [resource](#output\_resource)
+
+Description: This is the full resource output for the Synapse Workspace resource.
+
+### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
+
+Description: The ID of the Synapse Workspace.
 
 ## Modules
 
