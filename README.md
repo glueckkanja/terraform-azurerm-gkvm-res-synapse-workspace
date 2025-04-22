@@ -31,6 +31,7 @@ The following resources are used by this module:
 - [azurerm_private_endpoint.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) (resource)
 - [azurerm_private_endpoint.this_unmanaged_dns_zone_groups](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) (resource)
 - [azurerm_private_endpoint_application_security_group_association.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint_application_security_group_association) (resource)
+- [azurerm_role_assignment.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) (resource)
 - [modtm_telemetry.telemetry](https://registry.terraform.io/providers/Azure/modtm/latest/docs/resources/telemetry) (resource)
 - [random_password.sql_admin_password](https://registry.terraform.io/providers/hashicorp/random/3.6.2/docs/resources/password) (resource)
 - [random_uuid.telemetry](https://registry.terraform.io/providers/hashicorp/random/3.6.2/docs/resources/uuid) (resource)
@@ -392,6 +393,7 @@ map(object({
       condition                              = optional(string, null)
       condition_version                      = optional(string, null)
       delegated_managed_identity_resource_id = optional(string, null)
+      principal_type                         = optional(string, null)
     })), {})
     lock = optional(object({
       kind = string
@@ -399,7 +401,7 @@ map(object({
     }), null)
     tags                                    = optional(map(string), null)
     subnet_resource_id                      = string
-    subresource_name                        = string
+    subresource_name                        = string # NOTE: `subresource_name` can be excluded if the resource does not support multiple sub resource types (e.g. storage account supports blob, queue, etc)
     private_dns_zone_group_name             = optional(string, "default")
     private_dns_zone_resource_ids           = optional(set(string), [])
     application_security_group_associations = optional(map(string), {})
@@ -456,6 +458,7 @@ map(object({
     condition                              = optional(string, null)
     condition_version                      = optional(string, null)
     delegated_managed_identity_resource_id = optional(string, null)
+    principal_type                         = optional(string, null)
   }))
 ```
 
@@ -484,14 +487,6 @@ Description: (Optional) Tags of the resource.
 Type: `map(string)`
 
 Default: `null`
-
-### <a name="input_trusted_service_bypass_configuration_enabled"></a> [trusted\_service\_bypass\_configuration\_enabled](#input\_trusted\_service\_bypass\_configuration\_enabled)
-
-Description: (Optional) Whether to enable trusted service bypass configuration for the workspace. If set to true, trusted services will be able to bypass the firewall and access the workspace. If set to false, trusted services will not be able to bypass the firewall.
-
-Type: `bool`
-
-Default: `false`
 
 ### <a name="input_trusted_service_bypass_enabled"></a> [trusted\_service\_bypass\_enabled](#input\_trusted\_service\_bypass\_enabled)
 

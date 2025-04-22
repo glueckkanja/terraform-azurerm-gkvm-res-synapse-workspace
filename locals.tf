@@ -17,10 +17,11 @@ locals {
       }
     ]
   ]) : "${assoc.pe_key}-${assoc.asg_key}" => assoc }
-  resource_group_id    = format("%s/%s/%s", local.subscription_scope, local.resource_group_scope, local.resource_group_name)
-  resource_group_name  = var.resource_group_name
-  resource_group_scope = "resourceGroups"
-  sql_admin_password   = var.generate_sql_admin_password == true ? random_password.sql_admin_password[0].result : var.sql_admin_password
-  subscription_scope   = format("/subscriptions/%s", var.subscription_id)
-  synapse_workspace_id = azapi_resource.this.id
+  resource_group_id                  = format("%s/%s/%s", local.subscription_scope, local.resource_group_scope, local.resource_group_name)
+  resource_group_name                = var.resource_group_name
+  resource_group_scope               = "resourceGroups"
+  role_definition_resource_substring = "providers/Microsoft.Authorization/roleDefinitions"
+  sql_admin_password                 = var.generate_sql_admin_password == true ? random_password.sql_admin_password[0].result : var.sql_admin_password
+  subscription_scope                 = format("/subscriptions/%s", var.subscription_id)
+  synapse_workspace_id               = azapi_resource.this.id
 }

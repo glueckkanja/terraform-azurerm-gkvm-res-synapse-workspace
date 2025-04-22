@@ -85,7 +85,7 @@ module "avm_res_storage_storageaccount" {
   }
 }
 
-module "avm-res-network-virtualnetwork" {
+module "avm_res_network_virtualnetwork" {
   source              = "Azure/avm-res-network-virtualnetwork/azurerm"
   version             = "0.8.1"
   name                = module.naming.virtual_network.name_unique
@@ -130,7 +130,7 @@ module "this" {
     endpoint => {
       # the name must be set to avoid conflicting resources.
       name               = "pe-${endpoint}-${local.synapse_workspace_name}"
-      subnet_resource_id = module.avm-res-network-virtualnetwork.subnets.synapse_pe.resource_id
+      subnet_resource_id = module.avm_res_network_virtualnetwork.subnets.synapse_pe.resource_id
       subresource_name   = endpoint
       # these are optional but illustrate making well-aligned service connection & NIC names.
       private_service_connection_name = "psc-${endpoint}-${local.synapse_workspace_name}"
@@ -193,7 +193,7 @@ No outputs.
 
 The following Modules are called:
 
-### <a name="module_avm-res-network-virtualnetwork"></a> [avm-res-network-virtualnetwork](#module\_avm-res-network-virtualnetwork)
+### <a name="module_avm_res_network_virtualnetwork"></a> [avm\_res\_network\_virtualnetwork](#module\_avm\_res\_network\_virtualnetwork)
 
 Source: Azure/avm-res-network-virtualnetwork/azurerm
 
