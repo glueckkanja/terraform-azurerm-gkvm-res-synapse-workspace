@@ -110,9 +110,11 @@ module "this" {
   source = "../../"
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
   # ...
-  location                          = azurerm_resource_group.this.location
-  name                              = local.synapse_workspace_name
-  resource_group_name               = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
+  name                = local.synapse_workspace_name
+  resource_group_name = azurerm_resource_group.this.name
+  subscription_id     = data.azurerm_client_config.current.subscription_id
+
   initial_workspace_admin_object_id = "ed4f4edf-8df0-XXXX-XXXX-d86db3de8615" #Create random object id
 
   sql_admin_login             = "sqladmin"
