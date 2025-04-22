@@ -99,7 +99,7 @@ module "this" {
   name                              = local.synapse_workspace_name
   resource_group_name               = azurerm_resource_group.this.name
   subscription_id                   = data.azurerm_client_config.current.subscription_id
-  initial_workspace_admin_object_id = "ed4f4edf-8df0-48b4-9026-d86db3de8615"
+  initial_workspace_admin_object_id = "00000000-0000-0000-0000-000000000000"
   sql_admin_login                   = "sqladmin"
   generate_sql_admin_password       = true
   managed_resource_group_name       = "${azurerm_resource_group.this.name}-managed"

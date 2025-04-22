@@ -121,12 +121,11 @@ module "this" {
   resource_group_name = azurerm_resource_group.this.name
   subscription_id     = data.azurerm_client_config.current.subscription_id
 
-  initial_workspace_admin_object_id = "ed4f4edf-8df0-XXXX-XXXX-d86db3de8615" #Create random object id
-
-  sql_admin_login             = "sqladmin"
-  generate_sql_admin_password = true
-  managed_resource_group_name = "${azurerm_resource_group.this.name}-managed"
-  use_managed_virtual_network = true
+  initial_workspace_admin_object_id = "00000000-0000-0000-0000-000000000000"
+  sql_admin_login                   = "sqladmin"
+  generate_sql_admin_password       = true
+  managed_resource_group_name       = "${azurerm_resource_group.this.name}-managed"
+  use_managed_virtual_network       = true
   default_data_lake_storage = {
     resource_id                     = module.avm-res-storage-storageaccount.resource_id
     account_url                     = module.avm-res-storage-storageaccount.resource.primary_dfs_endpoint
