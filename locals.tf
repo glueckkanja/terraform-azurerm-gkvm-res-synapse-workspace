@@ -1,7 +1,5 @@
 # TODO: insert locals here.
 locals {
-  synapse_workspace_id = azapi_resource.this.id
-  sql_admin_password   = var.generate_sql_admin_password == true ? random_password.sql_admin_password[0].result : var.sql_admin_password
   managed_identities = {
     this = {
       type                       = var.managed_identities.system_assigned && length(var.managed_identities.user_assigned_resource_ids) > 0 ? "SystemAssigned, UserAssigned" : length(var.managed_identities.user_assigned_resource_ids) > 0 ? "UserAssigned" : "SystemAssigned"
@@ -19,9 +17,10 @@ locals {
       }
     ]
   ]) : "${assoc.pe_key}-${assoc.asg_key}" => assoc }
-  subscription_scope   = format("/subscriptions/%s", var.subscription_id)
-  resource_group_scope = "resourceGroups"
-  resource_group_name  = var.resource_group_name
   resource_group_id    = format("%s/%s/%s", local.subscription_scope, local.resource_group_scope, local.resource_group_name)
-
+  resource_group_name  = var.resource_group_name
+  resource_group_scope = "resourceGroups"
+  sql_admin_password   = var.generate_sql_admin_password == true ? random_password.sql_admin_password[0].result : var.sql_admin_password
+  subscription_scope   = format("/subscriptions/%s", var.subscription_id)
+  synapse_workspace_id = azapi_resource.this.id
 }

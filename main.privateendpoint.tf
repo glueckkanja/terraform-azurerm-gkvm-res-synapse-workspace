@@ -33,6 +33,7 @@ resource "azurerm_private_endpoint" "this" {
       private_dns_zone_ids = each.value.private_dns_zone_resource_ids
     }
   }
+
   lifecycle {
     ignore_changes = [
       tags

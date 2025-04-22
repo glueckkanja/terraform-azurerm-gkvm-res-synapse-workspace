@@ -5,28 +5,36 @@ This deploys the module in its simplest form.
 
 ```hcl
 terraform {
-  required_version = "~> 1.5"
+  required_version = ">= 1.9, < 2.0"
   required_providers {
+    azapi = {
+      source  = "Azure/azapi"
+      version = "~> 2.0"
+    }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.74"
+      version = "~> 4.0"
     }
     modtm = {
-      source  = "azure/modtm"
-      version = "~> 0.3"
+      source  = "Azure/modtm"
+      version = "0.3.2"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.5"
+      version = "3.6.2"
     }
   }
+  backend "local" {
+
+  }
 }
+
 
 provider "azurerm" {
   features {}
 }
 
-
+data "azurerm_client_config" "current" {}
 ## Section to provide a random Azure region for the resource group
 # This allows us to randomize the region for the resource group.
 module "regions" {
@@ -49,23 +57,89 @@ module "naming" {
 
 # This is required for resource modules
 resource "azurerm_resource_group" "this" {
-  location = module.regions.regions[random_integer.region_index.result].name
+  location = "germanywestcentral"
   name     = module.naming.resource_group.name_unique
 }
 
-# This is the module call
-# Do not specify location here due to the randomization above.
-# Leaving location as `null` will cause the module to use the resource group location
-# with a data source.
-module "test" {
+## Section
+module "avm-res-storage-storageaccount" {
+  source              = "Azure/avm-res-storage-storageaccount/azurerm"
+  version             = "0.5.0"
+  name                = module.naming.storage_account.name_unique
+  location            = azurerm_resource_group.this.location
+  resource_group_name = azurerm_resource_group.this.name
+
+  account_tier              = "Standard"
+  account_replication_type  = "LRS"
+  account_kind              = "StorageV2"
+  is_hns_enabled            = true
+  shared_access_key_enabled = true
+  storage_data_lake_gen2_filesystem = {
+    name = module.naming.storage_data_lake_gen2_filesystem.name_unique
+  }
+  public_network_access_enabled = true
+  network_rules = {
+    bypass = [
+      "AzureServices",
+    ]
+    default_action = "Allow"
+  }
+  role_assignments = {
+    role_assignment_2 = {
+      role_definition_id_or_name       = "Owner"
+      principal_id                     = data.azurerm_client_config.current.object_id
+      skip_service_principal_aad_check = false
+    },
+
+  }
+}
+
+locals {
+  synapse_workspace_name = "synws-example-${random_integer.region_index.result}"
+}
+module "this" {
   source = "../../"
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
   # ...
-  location            = azurerm_resource_group.this.location
-  name                = "TODO" # TODO update with module.naming.<RESOURCE_TYPE>.name_unique
-  resource_group_name = azurerm_resource_group.this.name
+  location                          = azurerm_resource_group.this.location
+  name                              = local.synapse_workspace_name
+  resource_group_name               = azurerm_resource_group.this.name
+  initial_workspace_admin_object_id = "ed4f4edf-8df0-48b4-9026-d86db3de8615"
+  sql_admin_login                   = "sqladmin"
+  generate_sql_admin_password       = true
+  managed_resource_group_name       = "${azurerm_resource_group.this.name}-managed"
+  use_managed_virtual_network       = true
+  default_data_lake_storage = {
+    resource_id                     = module.avm-res-storage-storageaccount.resource_id
+    account_url                     = module.avm-res-storage-storageaccount.resource.primary_dfs_endpoint
+    filesystem                      = module.naming.storage_data_lake_gen2_filesystem.name_unique
+    create_managed_private_endpoint = true
+  }
 
+  big_data_pools = {
+    spark01 = {
+      name             = "spark01"
+      node_size        = "Medium"
+      spark_version    = "3.4"
+      node_size_family = "MemoryOptimized"
+      auto_scale = {
+        enabled        = true
+        max_node_count = 5
+        min_node_count = 3
+      }
+      auto_pause = {
+        delay_in_minutes = 10
+        enabled          = true
+      }
+    }
+  }
+
+  tags = {
+    env = "test"
+  }
   enable_telemetry = var.enable_telemetry # see variables.tf
+
+  depends_on = [azurerm_resource_group.this]
 }
 ```
 
@@ -74,20 +148,23 @@ module "test" {
 
 The following requirements are needed by this module:
 
-- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (~> 1.5)
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9, < 2.0)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 3.74)
+- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.0)
 
-- <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (~> 0.3)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 4.0)
 
-- <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
+- <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (0.3.2)
+
+- <a name="requirement_random"></a> [random](#requirement\_random) (3.6.2)
 
 ## Resources
 
 The following resources are used by this module:
 
 - [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) (resource)
-- [random_integer.region_index](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) (resource)
+- [random_integer.region_index](https://registry.terraform.io/providers/hashicorp/random/3.6.2/docs/resources/integer) (resource)
+- [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) (data source)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
@@ -116,6 +193,12 @@ No outputs.
 
 The following Modules are called:
 
+### <a name="module_avm-res-storage-storageaccount"></a> [avm-res-storage-storageaccount](#module\_avm-res-storage-storageaccount)
+
+Source: Azure/avm-res-storage-storageaccount/azurerm
+
+Version: 0.5.0
+
 ### <a name="module_naming"></a> [naming](#module\_naming)
 
 Source: Azure/naming/azurerm
@@ -128,7 +211,7 @@ Source: Azure/avm-utl-regions/azurerm
 
 Version: ~> 0.1
 
-### <a name="module_test"></a> [test](#module\_test)
+### <a name="module_this"></a> [this](#module\_this)
 
 Source: ../../
 
