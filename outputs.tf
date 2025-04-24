@@ -1,7 +1,7 @@
 output "admin_password" {
   description = "Returns the sqladmin password if installation is configured to use the password.  Otherwise returns null"
   sensitive   = true
-  value       = random_password.sql_admin_password[0].result
+  value       = try(random_password.sql_admin_password[0].result, null)
 }
 
 output "name" {
