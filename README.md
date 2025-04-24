@@ -1,7 +1,7 @@
 <!-- BEGIN_TF_DOCS -->
-# terraform-azurerm-gkvm-res-synapse-workspace
+# terraform-azurerm-avm-template
 
-GKVM terraform module for azure synapse workspaces.
+This is a template repo for Terraform Azure Verified Modules.
 
 <!-- markdownlint-disable MD033 -->
 ## Requirements
@@ -254,8 +254,8 @@ Default: `{}`
 
 ### <a name="input_enable_telemetry"></a> [enable\_telemetry](#input\_enable\_telemetry)
 
-Description: This variable controls whether or not telemetry is enabled for the module.
-For more information see <https://aka.ms/avm/telemetryinfo>.
+Description: This variable controls whether or not telemetry is enabled for the module.  
+For more information see <https://aka.ms/avm/telemetryinfo>.  
 If it is set to false, then no telemetry will be collected.
 
 Type: `bool`
