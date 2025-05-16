@@ -55,27 +55,23 @@ resource "azurerm_resource_group" "this" {
 
 ## Section
 module "avm_res_storage_storageaccount" {
-  source              = "Azure/avm-res-storage-storageaccount/azurerm"
-  version             = "0.5.0"
-  name                = module.naming.storage_account.name_unique
-  location            = azurerm_resource_group.this.location
-  resource_group_name = azurerm_resource_group.this.name
+  source  = "Azure/avm-res-storage-storageaccount/azurerm"
+  version = "0.5.0"
 
-  account_tier              = "Standard"
-  account_replication_type  = "LRS"
-  account_kind              = "StorageV2"
-  is_hns_enabled            = true
-  shared_access_key_enabled = true
-  storage_data_lake_gen2_filesystem = {
-    name = module.naming.storage_data_lake_gen2_filesystem.name_unique
-  }
-  public_network_access_enabled = true
+  location                 = azurerm_resource_group.this.location
+  name                     = module.naming.storage_account.name_unique
+  resource_group_name      = azurerm_resource_group.this.name
+  account_kind             = "StorageV2"
+  account_replication_type = "LRS"
+  account_tier             = "Standard"
+  is_hns_enabled           = true
   network_rules = {
     bypass = [
       "AzureServices",
     ]
     default_action = "Allow"
   }
+  public_network_access_enabled = true
   role_assignments = {
     role_assignment_2 = {
       role_definition_id_or_name       = "Owner"
@@ -84,6 +80,10 @@ module "avm_res_storage_storageaccount" {
     },
 
   }
+  shared_access_key_enabled = true
+  storage_data_lake_gen2_filesystem = {
+    name = module.naming.storage_data_lake_gen2_filesystem.name_unique
+  }
 }
 
 locals {
@@ -91,28 +91,21 @@ locals {
 }
 module "this" {
   source = "../../"
+
+  initial_workspace_admin_object_id = "00000000-0000-0000-0000-000000000000"
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
   # ...
-  location                          = azurerm_resource_group.this.location
-  name                              = local.synapse_workspace_name
-  resource_group_name               = azurerm_resource_group.this.name
-  subscription_id                   = data.azurerm_client_config.current.subscription_id
-  initial_workspace_admin_object_id = "00000000-0000-0000-0000-000000000000"
-  sql_admin_login                   = "sqladmin"
-  generate_sql_admin_password       = true
-  managed_resource_group_name       = "${azurerm_resource_group.this.name}-managed"
-  use_managed_virtual_network       = true
-  managed_virtual_network_settings = {
-    prevent_data_exfiltration = false
-  }
+  location            = azurerm_resource_group.this.location
+  name                = local.synapse_workspace_name
+  resource_group_name = azurerm_resource_group.this.name
+  subscription_id     = data.azurerm_client_config.current.subscription_id
   default_data_lake_storage = {
     resource_id                     = module.avm_res_storage_storageaccount.resource_id
     account_url                     = module.avm_res_storage_storageaccount.resource.primary_dfs_endpoint
     filesystem                      = module.naming.storage_data_lake_gen2_filesystem.name_unique
     create_managed_private_endpoint = true
   }
-
-  trusted_service_bypass_enabled = true
+  enable_telemetry = var.enable_telemetry # see variables.tf
   firewall_rules = {
     rule001 = {
       name             = "rule001"
@@ -125,11 +118,17 @@ module "this" {
       end_ip_address   = "192.168.127.2"
     }
   }
-
+  generate_sql_admin_password = true
+  managed_resource_group_name = "${azurerm_resource_group.this.name}-managed"
+  managed_virtual_network_settings = {
+    prevent_data_exfiltration = false
+  }
+  sql_admin_login = "sqladmin"
   tags = {
     env = "test"
   }
-  enable_telemetry = var.enable_telemetry # see variables.tf
+  trusted_service_bypass_enabled = true
+  use_managed_virtual_network    = true
 
   depends_on = [azurerm_resource_group.this]
 }

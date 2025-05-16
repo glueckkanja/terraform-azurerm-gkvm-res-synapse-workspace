@@ -1,4 +1,3 @@
-
 variable "big_data_pools" {
   type = map(object({
     name             = string
@@ -80,5 +79,4 @@ A map of Spark pools to create on the Synapse workspace.
   - `filename` - The filename of the Spark configuration properties.
 - `tags` - (Optional) A map of tags to assign to the Spark pool.
 DESCRIPTION
-
 }

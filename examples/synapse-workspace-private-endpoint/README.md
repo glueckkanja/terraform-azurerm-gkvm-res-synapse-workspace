@@ -54,27 +54,23 @@ resource "azurerm_resource_group" "this" {
 
 ## Section
 module "avm_res_storage_storageaccount" {
-  source              = "Azure/avm-res-storage-storageaccount/azurerm"
-  version             = "0.5.0"
-  name                = module.naming.storage_account.name_unique
-  location            = azurerm_resource_group.this.location
-  resource_group_name = azurerm_resource_group.this.name
+  source  = "Azure/avm-res-storage-storageaccount/azurerm"
+  version = "0.5.0"
 
-  account_tier              = "Standard"
-  account_replication_type  = "LRS"
-  account_kind              = "StorageV2"
-  is_hns_enabled            = true
-  shared_access_key_enabled = true
-  storage_data_lake_gen2_filesystem = {
-    name = module.naming.storage_data_lake_gen2_filesystem.name_unique
-  }
-  public_network_access_enabled = true
+  location                 = azurerm_resource_group.this.location
+  name                     = module.naming.storage_account.name_unique
+  resource_group_name      = azurerm_resource_group.this.name
+  account_kind             = "StorageV2"
+  account_replication_type = "LRS"
+  account_tier             = "Standard"
+  is_hns_enabled           = true
   network_rules = {
     bypass = [
       "AzureServices",
     ]
     default_action = "Allow"
   }
+  public_network_access_enabled = true
   role_assignments = {
     role_assignment_2 = {
       role_definition_id_or_name       = "Owner"
@@ -83,15 +79,20 @@ module "avm_res_storage_storageaccount" {
     },
 
   }
+  shared_access_key_enabled = true
+  storage_data_lake_gen2_filesystem = {
+    name = module.naming.storage_data_lake_gen2_filesystem.name_unique
+  }
 }
 
 module "avm_res_network_virtualnetwork" {
-  source              = "Azure/avm-res-network-virtualnetwork/azurerm"
-  version             = "0.8.1"
-  name                = module.naming.virtual_network.name_unique
+  source  = "Azure/avm-res-network-virtualnetwork/azurerm"
+  version = "0.8.1"
+
+  address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.this.location
   resource_group_name = azurerm_resource_group.this.name
-  address_space       = ["10.0.0.0/16"]
+  name                = module.naming.virtual_network.name_unique
   subnets = {
     synapse_pe = {
       name             = "synapse-pe"
@@ -106,25 +107,23 @@ locals {
 }
 module "this" {
   source = "../../"
+
+  initial_workspace_admin_object_id = "00000000-0000-0000-0000-000000000000"
   # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
   # ...
   location            = azurerm_resource_group.this.location
   name                = local.synapse_workspace_name
   resource_group_name = azurerm_resource_group.this.name
   subscription_id     = data.azurerm_client_config.current.subscription_id
-
-  initial_workspace_admin_object_id = "00000000-0000-0000-0000-000000000000"
-  sql_admin_login                   = "sqladmin"
-  generate_sql_admin_password       = true
-  managed_resource_group_name       = "${azurerm_resource_group.this.name}-managed"
-  use_managed_virtual_network       = true
   default_data_lake_storage = {
     resource_id                     = module.avm_res_storage_storageaccount.resource_id
     account_url                     = module.avm_res_storage_storageaccount.resource.primary_dfs_endpoint
     filesystem                      = module.naming.storage_data_lake_gen2_filesystem.name_unique
     create_managed_private_endpoint = true
   }
-
+  enable_telemetry            = var.enable_telemetry # see variables.tf
+  generate_sql_admin_password = true
+  managed_resource_group_name = "${azurerm_resource_group.this.name}-managed"
   private_endpoints = {
     for endpoint in local.endpoints :
     endpoint => {
@@ -137,11 +136,11 @@ module "this" {
       network_interface_name          = "nic-pe-${endpoint}-${local.synapse_workspace_name}"
     }
   }
-
+  sql_admin_login = "sqladmin"
   tags = {
     env = "test"
   }
-  enable_telemetry = var.enable_telemetry # see variables.tf
+  use_managed_virtual_network = true
 
   depends_on = [azurerm_resource_group.this]
 }
