@@ -1,3 +1,8 @@
+# variable "subscription_id" {
+#   type        = string
+#   description = "The subscription ID where the resource should be deployed."
+# }
+
 variable "initial_workspace_admin_object_id" {
   type        = string
   description = <<DESCRIPTION
@@ -30,11 +35,6 @@ variable "name" {
 variable "resource_group_name" {
   type        = string
   description = "The resource name of the resource group where the resource should be deployed."
-}
-
-variable "subscription_id" {
-  type        = string
-  description = "The subscription ID where the resource should be deployed."
 }
 
 variable "azure_ad_only_authentication" {

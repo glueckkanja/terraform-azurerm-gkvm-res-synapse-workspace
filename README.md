@@ -1,7 +1,7 @@
 <!-- BEGIN_TF_DOCS -->
-# terraform-azurerm-gkvm-res-synapse-workspace
+# terraform-azurerm-avm-template
 
-This Terraform module deploys and manages an Azure Synapse Analytics Workspace using Azure Verified Modules (AVM) standards. It supports advanced configuration for networking, security, managed identities, private endpoints, customer-managed keys, Spark pools, diagnostic settings, and integration with Azure DevOps repositories. The module is designed for enterprise-scale deployments, enabling secure, compliant, and automated provisioning of Synapse workspaces with flexible options for data lake integration, firewall rules, and role assignments. It is suitable for organizations looking to automate and standardize their Synapse Analytics environments in Azure.
+This is a template repo for Terraform Azure Verified Modules.
 
 <!-- markdownlint-disable MD033 -->
 ## Requirements
@@ -37,6 +37,7 @@ The following resources are used by this module:
 - [random_uuid.telemetry](https://registry.terraform.io/providers/hashicorp/random/3.6.2/docs/resources/uuid) (resource)
 - [azurerm_client_config.telemetry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) (data source)
 - [azurerm_key_vault_key.cmk](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/key_vault_key) (data source)
+- [azurerm_resource_group.rg](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/resource_group) (data source)
 - [modtm_module_source.telemetry](https://registry.terraform.io/providers/Azure/modtm/latest/docs/data-sources/module_source) (data source)
 
 <!-- markdownlint-disable MD013 -->
@@ -65,12 +66,6 @@ Type: `string`
 ### <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name)
 
 Description: The resource name of the resource group where the resource should be deployed.
-
-Type: `string`
-
-### <a name="input_subscription_id"></a> [subscription\_id](#input\_subscription\_id)
-
-Description: The subscription ID where the resource should be deployed.
 
 Type: `string`
 
@@ -254,8 +249,8 @@ Default: `{}`
 
 ### <a name="input_enable_telemetry"></a> [enable\_telemetry](#input\_enable\_telemetry)
 
-Description: This variable controls whether or not telemetry is enabled for the module.
-For more information see <https://aka.ms/avm/telemetryinfo>.
+Description: This variable controls whether or not telemetry is enabled for the module.  
+For more information see <https://aka.ms/avm/telemetryinfo>.  
 If it is set to false, then no telemetry will be collected.
 
 Type: `bool`
