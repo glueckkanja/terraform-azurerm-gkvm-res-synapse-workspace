@@ -130,7 +130,6 @@ module "this" {
     }
   }
   sql_admin_login = "sqladmin"
-  subscription_id = data.azurerm_client_config.current.subscription_id
   tags = {
     env = "test"
   }
