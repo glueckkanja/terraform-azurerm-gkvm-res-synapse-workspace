@@ -5,3 +5,7 @@ data "azurerm_key_vault_key" "cmk" {
   key_vault_id = var.customer_managed_key.key_vault_resource_id
   name         = var.customer_managed_key.key_name
 }
+
+data "azurerm_resource_group" "rg" {
+  name = var.resource_group_name
+}

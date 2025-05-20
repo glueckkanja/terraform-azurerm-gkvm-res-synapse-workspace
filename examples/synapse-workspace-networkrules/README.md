@@ -98,7 +98,6 @@ module "this" {
   location            = azurerm_resource_group.this.location
   name                = local.synapse_workspace_name
   resource_group_name = azurerm_resource_group.this.name
-  subscription_id     = data.azurerm_client_config.current.subscription_id
   default_data_lake_storage = {
     resource_id                     = module.avm_res_storage_storageaccount.resource_id
     account_url                     = module.avm_res_storage_storageaccount.resource.primary_dfs_endpoint
@@ -124,6 +123,7 @@ module "this" {
     prevent_data_exfiltration = false
   }
   sql_admin_login = "sqladmin"
+  subscription_id = data.azurerm_client_config.current.subscription_id
   tags = {
     env = "test"
   }

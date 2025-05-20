@@ -98,7 +98,6 @@ module "this" {
   location            = azurerm_resource_group.this.location
   name                = local.synapse_workspace_name
   resource_group_name = azurerm_resource_group.this.name
-  subscription_id     = data.azurerm_client_config.current.subscription_id
   big_data_pools = {
     spark01 = {
       name             = "spark01"
@@ -126,6 +125,7 @@ module "this" {
   generate_sql_admin_password = true
   managed_resource_group_name = "${azurerm_resource_group.this.name}-managed"
   sql_admin_login             = "sqladmin"
+  subscription_id             = data.azurerm_client_config.current.subscription_id
   tags = {
     env = "test"
   }
