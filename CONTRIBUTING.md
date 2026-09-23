@@ -1,14 +1,32 @@
 # Contributing
 
-This project welcomes contributions and suggestions. Most contributions require you to
-agree to a Contributor License Agreement (CLA) declaring that you have the right to,
-and actually do, grant us the rights to use your contribution. For details, visit
-https://cla.microsoft.com.
+Contributions and suggestions are welcome.
 
-When you submit a pull request, a CLA-bot will automatically determine whether you need
-to provide a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the
-instructions provided by the bot. You will only need to do this once across all repositories using our CLA.
+## Getting started
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/)
-or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+This module needs no Azure subscription and no credentials to develop against. Checks run through the pinned [gkvm-tools](https://github.com/glueckkanja/gkvm-tools) container image, so Docker (or `CONTAINER_RUNTIME=podman`) is the only local requirement. The devcontainer uses the same image.
+
+## Before opening a pull request
+
+```bash
+./gkvm pre-commit   # formatting, block ordering, docs — writes files
+./gkvm pr-check     # everything CI runs, read-only
+```
+
+Commit whatever `pre-commit` changes; CI fails if the committed files drift from the generated ones.
+
+Example READMEs embed their own HCL source via `{{ include }}`, so they are generated too -- with `examples/.terraform-docs.yml`, never with the root config, which would strip the embedded block.
+
+## Conventions
+
+- Conventional Commits for commit subjects; use `!` for breaking changes.
+- `snake_case` for all Terraform identifiers.
+- Every variable and output carries a `description`.
+
+## Changes that affect state
+
+This module is consumed across many Terraform states, so treat resource addresses as a public interface.
+
+`for_each` key expressions are state addresses. Changing one forces a destroy and recreate of every affected resource in every consuming state, and `moved` blocks cannot repair keys computed from a variable — leaving consumers to run `terraform state mv` by hand. Do not change a key expression unless you are deliberately shipping a migration, and say so explicitly in the pull request.
+
+When a change does affect state, describe the impact in the pull request: what Terraform will plan on the first run after upgrading, and what a consumer has to do about it.

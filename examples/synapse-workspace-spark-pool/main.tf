@@ -115,7 +115,6 @@ module "this" {
     filesystem                      = module.naming.storage_data_lake_gen2_filesystem.name_unique
     create_managed_private_endpoint = true
   }
-  enable_telemetry            = var.enable_telemetry # see variables.tf
   generate_sql_admin_password = true
   managed_resource_group_name = "${azurerm_resource_group.this.name}-managed"
   sql_admin_login             = "sqladmin"

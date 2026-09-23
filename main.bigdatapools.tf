@@ -1,7 +1,10 @@
 resource "azapi_resource" "big_data_pools" {
   for_each = var.big_data_pools
 
-  type = "Microsoft.Synapse/workspaces/bigDataPools@2021-06-01"
+  location  = each.value.location != null ? each.value.location : var.location
+  name      = each.value.name
+  parent_id = azapi_resource.this.id
+  type      = "Microsoft.Synapse/workspaces/bigDataPools@2021-06-01"
   body = {
     properties = {
       autoPause = each.value.auto_pause != null ? {
@@ -39,9 +42,6 @@ resource "azapi_resource" "big_data_pools" {
       sparkVersion      = each.value.spark_version
     }
   }
-  location  = each.value.location != null ? each.value.location : var.location
-  name      = each.value.name
-  parent_id = azapi_resource.this.id
   tags = merge(
     azapi_resource.this.tags,
     each.value.tags
