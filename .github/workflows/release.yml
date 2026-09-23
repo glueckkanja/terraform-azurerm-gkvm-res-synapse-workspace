@@ -1,0 +1,14 @@
+---
+name: Release
+
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+*']
+
+permissions: {}
+
+jobs:
+  release:
+    permissions:
+      contents: write # Required to create the GitHub release.
+    uses: glueckkanja/gkvm-tools/.github/workflows/release.yml@9c68b6a0cc9ce93a69c024dbaa2aa391d39046d1 # v0.1.1

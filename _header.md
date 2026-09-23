@@ -1,3 +1,3 @@
-# terraform-azurerm-avm-template
+# terraform-azurerm-gkvm-res-synapse-workspace
 
-This is a template repo for Terraform Azure Verified Modules.
+glueckkanja verified module (GKVM) for Azure Synapse Analytics workspaces: the workspace itself with its authentication, firewall rules, private endpoints, role assignments, locks, diagnostic settings and Spark big data pools.

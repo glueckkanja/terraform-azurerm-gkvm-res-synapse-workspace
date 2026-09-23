@@ -98,7 +98,6 @@ module "this" {
     filesystem                      = module.naming.storage_data_lake_gen2_filesystem.name_unique
     create_managed_private_endpoint = true
   }
-  enable_telemetry = var.enable_telemetry # see variables.tf
   firewall_rules = {
     rule001 = {
       name             = "rule001"

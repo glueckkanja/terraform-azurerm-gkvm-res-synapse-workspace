@@ -1,5 +1,8 @@
 resource "azapi_resource" "this" {
-  type = "Microsoft.Synapse/workspaces@2021-06-01-preview"
+  location  = var.location
+  name      = var.name
+  parent_id = local.resource_group_id
+  type      = "Microsoft.Synapse/workspaces@2021-06-01-preview"
   body = {
     properties = {
       azureADOnlyAuthentication = var.azure_ad_only_authentication
@@ -55,9 +58,6 @@ resource "azapi_resource" "this" {
     }
   }
   ignore_missing_property = true
-  location                = var.location
-  name                    = var.name
-  parent_id               = local.resource_group_id
   response_export_values = [
     "body.properties.workspaceRepositoryConfiguration.lastCommitId",
     "body.properties.privateEndpointConnections"
@@ -94,7 +94,9 @@ resource "azapi_resource" "this" {
 resource "azapi_resource" "synapse_workspace_firewall_rules" {
   for_each = var.firewall_rules
 
-  type = "Microsoft.Synapse/workspaces/firewallRules@2021-06-01-preview"
+  name      = try(each.value.name, each.key)
+  parent_id = azapi_resource.this.id
+  type      = "Microsoft.Synapse/workspaces/firewallRules@2021-06-01-preview"
   body = {
     properties = {
       endIpAddress   = each.value.end_ip_address
@@ -102,8 +104,6 @@ resource "azapi_resource" "synapse_workspace_firewall_rules" {
     }
   }
   ignore_missing_property = true
-  name                    = try(each.value.name, each.key)
-  parent_id               = azapi_resource.this.id
 
   depends_on = [azapi_resource.this]
 }
@@ -112,15 +112,15 @@ resource "azapi_resource" "synapse_workspace_firewall_rules" {
 resource "azapi_resource" "synapse_workspace_firewall_rules_trusted_azure_services" {
   count = var.trusted_service_bypass_enabled ? 1 : 0
 
-  type = "Microsoft.Synapse/workspaces/firewallRules@2021-06-01-preview"
+  name      = "AllowAllWindowsAzureIps"
+  parent_id = azapi_resource.this.id
+  type      = "Microsoft.Synapse/workspaces/firewallRules@2021-06-01-preview"
   body = {
     properties = {
       endIpAddress   = "0.0.0.0"
       startIpAddress = "0.0.0.0"
     }
   }
-  name      = "AllowAllWindowsAzureIps"
-  parent_id = azapi_resource.this.id
 
   depends_on = [azapi_resource.this]
 }

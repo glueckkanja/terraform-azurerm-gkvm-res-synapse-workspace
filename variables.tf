@@ -131,13 +131,15 @@ DESCRIPTION
   }
 }
 
+# tflint-ignore: terraform_unused_declarations
 variable "enable_telemetry" {
   type        = bool
-  default     = true
+  default     = false
   description = <<DESCRIPTION
-This variable controls whether or not telemetry is enabled for the module.
-For more information see <https://aka.ms/avm/telemetryinfo>.
-If it is set to false, then no telemetry will be collected.
+DEPRECATED, has no effect and will be removed in the next major version.
+This module sends no telemetry; the Microsoft `modtm` telemetry inherited from
+the AVM template was removed. The variable is kept for one major version so
+existing callers do not break.
 DESCRIPTION
   nullable    = false
 }
